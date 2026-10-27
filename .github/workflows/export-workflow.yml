@@ -9,17 +9,16 @@ permissions:
 jobs:
   export:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
-      - name: Export workflow spans
-        uses: plengauer/Thoth/actions/instrument/workflow@c6ece8c81027d5bc048a003ccf0215d75221f2c1
+      - name: Check out completed run source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - name: Export workflow spans through GitHub receiver
         env:
-          OTEL_SERVICE_NAME: gha-buildkit-spike
+          GH_TOKEN: ${{ github.token }}
+          OBSERVED_RUN_ID: ${{ github.event.workflow_run.id }}
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.GRAFANA_CLOUD_OTLP_ENDPOINT }}
           OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.GRAFANA_CLOUD_OTLP_HEADERS }}
-          OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
-          OTEL_METRICS_EXPORTER: none
-          OTEL_LOGS_EXPORTER: none
-          OTEL_RESOURCE_ATTRIBUTES: ci.repository=${{ github.repository }},ci.run.id=${{ github.event.workflow_run.id }},experiment.mode=linked
-        with:
-          self_monitoring: 'false'
+        run: python3 scripts/export-workflow.py

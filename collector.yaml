@@ -1,0 +1,29 @@
+receivers:
+  github:
+    webhook:
+      endpoint: 0.0.0.0:19418
+      path: /events
+      health_path: /health
+      service_name: github-actions
+    scrapers:
+      scraper:
+        github_org: ymotongpoo
+processors:
+  batch:
+    timeout: 1s
+exporters:
+  otlp_http/cloud:
+    endpoint: ${env:OTEL_EXPORTER_OTLP_ENDPOINT}
+    headers:
+      Authorization: ${env:GRAFANA_AUTHORIZATION}
+    timeout: 10s
+    sending_queue:
+      enabled: false
+    retry_on_failure:
+      enabled: false
+service:
+  pipelines:
+    traces:
+      receivers: [github]
+      processors: [batch]
+      exporters: [otlp_http/cloud]
