@@ -1,0 +1,22 @@
+README.md
+  s_e5d7daba3536a0::t_066cebf11868d3 24,59-61,63,65,68-71
+  s_e5d7daba3536a0::t_727909cdc5542d 32,58,62,64,66-67,72
+tests/test_regressions.py
+  s_e5d7daba3536a0::t_62ef18a087fe2f 1-167
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "174eacdf9765bbc516b38de8a09eedc709cef8eb",
+  "prompts": {},
+  "sessions": {
+    "s_e5d7daba3536a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a15baf-3c6c-7eb3-89ab-c308d5ab4b41",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Yoshi Yamaguchi <ymotongpoo@gmail.com>"
+    }
+  }
+}
