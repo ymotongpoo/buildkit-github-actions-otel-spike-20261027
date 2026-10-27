@@ -1,0 +1,21 @@
+.github/workflows/build.yml
+  s_e5d7daba3536a0::t_aafbb058a0ea06 1-70
+.github/workflows/export-workflow.yml
+  s_e5d7daba3536a0::t_aafbb058a0ea06 1-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b2eb2a24aeec560e594fc4cf1e8c0274dfebffe3",
+  "prompts": {},
+  "sessions": {
+    "s_e5d7daba3536a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a15baf-3c6c-7eb3-89ab-c308d5ab4b41",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Yoshi Yamaguchi <ymotongpoo@gmail.com>"
+    }
+  }
+}
