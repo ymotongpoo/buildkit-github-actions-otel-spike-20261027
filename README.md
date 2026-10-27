@@ -21,7 +21,7 @@ Workflows run only on manual dispatch. Cloud credentials stay in Actions secrets
 
 Tempo returned one trace, `d186f60d435cbf0d2af27d385e372d12`, with 108 unique spans: 21 from `github-actions`, 33 from `buildx`, and 54 from `buildkitd`. It contains both jobs, one root, and zero missing parents. The Dockerfile RUN span descends through the actual workflow, job, build step, and Buildx span IDs. See [the verified IDs and counts](evidence/linked-verification.json).
 
-The initial trace search found the BuildKit spans before the CI root arrived. After the export workflow completed, Tempo combined them under the workflow root. This demonstrates eventual assembly, not live availability of every CI span during the build.
+The initial trace search response reported that the root had not been received. A later trace-ID lookup returned all 108 spans under the workflow root. These responses do not establish exact delivery times or prove search availability during the build.
 
 ## Workflow trace experiment
 
@@ -29,7 +29,7 @@ The initial trace search found the BuildKit spans before the CI root arrived. Af
 
 Before the build step, `scripts/ci-parent.py` reads the current job ID from the GitHub API. It calculates the same trace and step span IDs as OpenTelemetry Collector's GitHub receiver v0.164.0, then passes that step's `TRACEPARENT` to Buildx. The step name must be unique within the job.
 
-After the build workflow completes, `export-workflow.yml` runs `scripts/export-workflow.py`. It fetches the completed run and job records from the GitHub API, reconstructs their completed-event envelopes, and feeds them to the standard GitHub receiver in a short-lived Collector. The receiver creates the workflow, job, queue, and step spans and exports them to Grafana Cloud.
+After the build workflow completes, `export-workflow.yml` runs `scripts/export-workflow.py`. It passes both the run ID and attempt from the completion event. The script fetches that specific completed attempt and its jobs, then checks their IDs and completion states. It reconstructs their completed-event envelopes and feeds them to the standard GitHub receiver in a short-lived Collector. The receiver creates the workflow, job, queue, and step spans and exports them to Grafana Cloud.
 
 The expected hierarchy is:
 
@@ -55,7 +55,21 @@ Download the full OTLP-shaped trace JSON from Tempo, then run:
 python3 scripts/verify-trace.py trace.json --mode linked
 ```
 
-The verifier checks one trace ID, one workflow root, the build step and build job in the Buildx parent chain, the second job, and the absence of missing parent spans. Workflow success alone is insufficient for this check.
+The verifier checks one trace ID, unique span IDs, one workflow root, and no missing parents or cycles. It checks that every span reaches the root. It also checks the Actions steps and jobs in the Buildx parent chain, the second job, and the Dockerfile RUN span. Workflow success alone is insufficient for this check.
+
+## Corrections after the observed run
+
+The recorded Cloud run used commit `39dd2bdec3314ab593e22606d4edc6579f1a7114`. Review found three gaps in the helper code. Console-format Collector errors escaped the log check. Duplicate span IDs did not fail verification. A delayed completion event could fetch a newer run attempt.
+
+The corrected exporter uses JSON Collector logs, parses their severity, and removes the container even when log checking fails. It selects the notified attempt explicitly. The verifier now rejects duplicate IDs and disconnected cycles.
+
+Local regression tests cover these changes. I also checked a real Collector with a local OTLP sink. I have not rerun the corrected workflow on GitHub Actions. The original 108-span observation remains valid.
+
+```sh
+python3 -m unittest discover -s tests -v
+```
+
+The historical file name `evidence/linked-before-ci-export.json` does not establish that the search happened before CI export. I kept the file as the original search response.
 
 ## Earlier Thoth attempt
 
