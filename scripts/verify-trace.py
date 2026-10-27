@@ -47,8 +47,11 @@ for resource in trace["resourceSpans"]:
 trace_ids = {span["trace"] for span in spans}
 assert len(trace_ids) == 1, "More than one trace ID in the response"
 by_id = {span["id"]: span for span in spans}
+assert len(spans) == len(by_id), "Duplicate span IDs"
 roots = [span for span in by_id.values() if not span["parent"] or set(span["parent"]) == {"0"}]
 missing = [span for span in by_id.values() if span["parent"] and set(span["parent"]) != {"0"} and span["parent"] not in by_id]
+assert len(roots) == 1, f"Expected one root, found {len(roots)}"
+assert not missing, f"Missing parents: {len(missing)}"
 builds = [span for span in by_id.values() if span["name"] == "build ."]
 assert len(builds) == 1, f"Expected one build span, found {len(builds)}"
 assert any(span["service"] == "buildkitd" for span in spans), "No BuildKit spans"
@@ -61,6 +64,9 @@ def ancestry(current):
         current = by_id.get(current["parent"])
     return path
 
+
+for span in spans:
+    assert ancestry(span)[-1]["id"] == roots[0]["id"], "Span does not reach the unique root"
 
 path = ancestry(builds[0])
 
@@ -78,8 +84,6 @@ result = {
 if args.mode == "baseline":
     assert builds[0] in roots, "Baseline build is unexpectedly nested"
 else:
-    assert len(roots) == 1, f"Expected one workflow root, found {len(roots)}"
-    assert not missing, f"Missing parents: {len(missing)}"
     assert has_label(path[-1], "BuildKit linked trace"), "Build does not reach the workflow root"
     assert any(has_label(span, "Build Docker image") for span in path[1:]), "No Actions build step in ancestry"
     assert any(has_label(span, "build") for span in path[1:]), "No build job in ancestry"
