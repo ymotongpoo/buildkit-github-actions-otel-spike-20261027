@@ -1,0 +1,30 @@
+{
+  "mode": "baseline",
+  "traceId": "ca7dc175b66f4a8a353b411d729c2636",
+  "spanCount": 87,
+  "uniqueSpanCount": 87,
+  "services": {
+    "buildx": 33,
+    "buildkitd": 54
+  },
+  "roots": [
+    {
+      "id": "b878c64509b659f0",
+      "name": "build .",
+      "service": "buildx"
+    }
+  ],
+  "missingParentCount": 0,
+  "buildAncestry": [
+    {
+      "id": "b878c64509b659f0",
+      "parent": "",
+      "name": "build .",
+      "service": "buildx"
+    }
+  ],
+  "passed": true,
+  "workflowRun": "https://github.com/ymotongpoo/buildkit-github-actions-otel-spike-20261027/actions/runs/40436429094",
+  "sourceCommit": "5f0d91686c226d28057222d1ec84148728d7ac13",
+  "buildDurationMs": 1348
+}
