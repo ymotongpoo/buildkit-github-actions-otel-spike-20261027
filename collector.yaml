@@ -22,6 +22,9 @@ exporters:
     retry_on_failure:
       enabled: false
 service:
+  telemetry:
+    logs:
+      encoding: json
   pipelines:
     traces:
       receivers: [github]

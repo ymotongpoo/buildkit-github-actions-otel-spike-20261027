@@ -19,6 +19,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           OBSERVED_RUN_ID: ${{ github.event.workflow_run.id }}
+          OBSERVED_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.GRAFANA_CLOUD_OTLP_ENDPOINT }}
           OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.GRAFANA_CLOUD_OTLP_HEADERS }}
         run: python3 scripts/export-workflow.py

@@ -8,16 +8,17 @@ import urllib.request
 from urllib.parse import unquote
 
 repository = os.environ["GITHUB_REPOSITORY"]
-run_id = os.environ["OBSERVED_RUN_ID"]
+run_id = int(os.environ["OBSERVED_RUN_ID"])
+attempt = int(os.environ["OBSERVED_RUN_ATTEMPT"])
 
 
 def github(path):
     return json.loads(subprocess.check_output(["gh", "api", f"repos/{repository}/{path}"]))
 
 
-run = github(f"actions/runs/{run_id}")
+run = github(f"actions/runs/{run_id}/attempts/{attempt}")
+assert run["id"] == run_id and run["run_attempt"] == attempt, "Workflow run or attempt mismatch"
 assert run["status"] == "completed", "Only completed workflow runs can be exported"
-attempt = run["run_attempt"]
 repo = json.loads(subprocess.check_output(["gh", "api", f"repos/{repository}"]))
 pages = json.loads(subprocess.check_output([
     "gh", "api", "--paginate", "--slurp",
@@ -25,6 +26,10 @@ pages = json.loads(subprocess.check_output([
 ]))
 jobs = [job for page in pages for job in page["jobs"]]
 assert jobs, "The workflow has no jobs to export"
+assert all(
+    job["run_id"] == run_id and job["run_attempt"] == attempt and job["status"] == "completed"
+    for job in jobs
+), "Every job must belong to the completed workflow attempt"
 authorization = dict(item.split("=", 1) for item in os.environ["OTEL_EXPORTER_OTLP_HEADERS"].split(","))["Authorization"]
 env = dict(os.environ, GRAFANA_AUTHORIZATION=unquote(authorization))
 name = "github-trace-export"
@@ -52,8 +57,14 @@ try:
             assert response.status in (200, 202), response.status
         print(f"Accepted {kind} event")
 finally:
-    subprocess.run(["docker", "stop", "--time", "20", name], check=True, stdout=subprocess.DEVNULL)
-    logs = subprocess.check_output(["docker", "logs", name], stderr=subprocess.STDOUT).decode()
-    assert '"level":"error"' not in logs and '"level": "error"' not in logs, "Collector reported an error"
-    subprocess.run(["docker", "rm", name], check=True, stdout=subprocess.DEVNULL)
+    try:
+        subprocess.run(["docker", "stop", "--time", "20", name], check=True, stdout=subprocess.DEVNULL)
+        logs = subprocess.check_output(["docker", "logs", name], stderr=subprocess.STDOUT).decode()
+        for line in logs.splitlines():
+            if not line.strip():
+                continue
+            entry = json.loads(line)
+            assert entry.get("level") not in {"error", "fatal", "panic"}, "Collector reported an error"
+    finally:
+        subprocess.run(["docker", "rm", "--force", name], check=True, stdout=subprocess.DEVNULL)
 print(f"Exported workflow {run_id}, attempt {attempt}, {len(jobs)} jobs")
