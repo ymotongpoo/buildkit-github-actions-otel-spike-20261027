@@ -1,8 +1,13 @@
 {
-  "workflowRun": "https://github.com/ymotongpoo/buildkit-github-actions-otel-spike-20261027/actions/runs/40436761654",
-  "sourceCommit": "b2eb2a24aeec560e594fc4cf1e8c0274dfebffe3",
-  "conclusion": "action_required",
-  "jobsStarted": 0,
-  "parentageVerified": false,
-  "message": "GitHub detected that this workflow file may be malicious. It will not run until someone with write access approves it."
+  "workflowRun": "https://github.com/ymotongpoo/buildkit-github-actions-otel-spike-20261027/actions/runs/40437818776",
+  "sourceCommit": "39dd2bdec3314ab593e22606d4edc6579f1a7114",
+  "conclusion": "success",
+  "jobsCompleted": [
+    "build",
+    "verify-source"
+  ],
+  "parentageVerified": true,
+  "traceId": "d186f60d435cbf0d2af27d385e372d12",
+  "exportWorkflowRun": "https://github.com/ymotongpoo/buildkit-github-actions-otel-spike-20261027/actions/runs/40437872708",
+  "earlierThothRun": "https://github.com/ymotongpoo/buildkit-github-actions-otel-spike-20261027/actions/runs/40436761654"
 }

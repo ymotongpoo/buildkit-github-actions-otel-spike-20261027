@@ -1,0 +1,20 @@
+{
+  "traces": [
+    {
+      "traceID": "d186f60d435cbf0d2af27d385e372d12",
+      "rootServiceName": "\u003croot span not yet received\u003e",
+      "rootTraceName": "",
+      "startTimeUnixNano": "1793067625520078503",
+      "durationMs": 1322,
+      "serviceStats": {
+        "buildkitd": {
+          "spanCount": 54,
+          "errorCount": 2
+        },
+        "buildx": {
+          "spanCount": 33
+        }
+      }
+    }
+  ]
+}

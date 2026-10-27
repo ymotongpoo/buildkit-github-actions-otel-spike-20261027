@@ -1,0 +1,101 @@
+{
+  "mode": "linked",
+  "traceId": "d186f60d435cbf0d2af27d385e372d12",
+  "spanCount": 108,
+  "uniqueSpanCount": 108,
+  "services": {
+    "github-actions": 21,
+    "buildx": 33,
+    "buildkitd": 54
+  },
+  "roots": [
+    {
+      "id": "e7c711bbe520e84f",
+      "name": "BuildKit linked trace",
+      "service": "github-actions"
+    }
+  ],
+  "missingParentCount": 0,
+  "buildAncestry": [
+    {
+      "id": "e7c711bbe520e84f",
+      "parent": "",
+      "name": "BuildKit linked trace",
+      "service": "github-actions"
+    },
+    {
+      "id": "4b166f01927696a4",
+      "parent": "e7c711bbe520e84f",
+      "name": "build",
+      "service": "github-actions"
+    },
+    {
+      "id": "108544af50978be0",
+      "parent": "4b166f01927696a4",
+      "name": "Build Docker image",
+      "service": "github-actions"
+    },
+    {
+      "id": "5da8c9af160b108b",
+      "parent": "108544af50978be0",
+      "name": "build .",
+      "service": "buildx"
+    }
+  ],
+  "dockerfileAncestry": [
+    {
+      "id": "e7c711bbe520e84f",
+      "parent": "",
+      "name": "BuildKit linked trace",
+      "service": "github-actions"
+    },
+    {
+      "id": "4b166f01927696a4",
+      "parent": "e7c711bbe520e84f",
+      "name": "build",
+      "service": "github-actions"
+    },
+    {
+      "id": "108544af50978be0",
+      "parent": "4b166f01927696a4",
+      "name": "Build Docker image",
+      "service": "github-actions"
+    },
+    {
+      "id": "5da8c9af160b108b",
+      "parent": "108544af50978be0",
+      "name": "build .",
+      "service": "buildx"
+    },
+    {
+      "id": "533ab6ef63c39818",
+      "parent": "5da8c9af160b108b",
+      "name": "build",
+      "service": "buildx"
+    },
+    {
+      "id": "c7123b27dbeea72c",
+      "parent": "533ab6ef63c39818",
+      "name": "moby.buildkit.v1.Control/Solve",
+      "service": "buildx"
+    },
+    {
+      "id": "94abaf97442561b1",
+      "parent": "c7123b27dbeea72c",
+      "name": "moby.buildkit.v1.Control/Solve",
+      "service": "buildkitd"
+    },
+    {
+      "id": "7a7c6a69be6a4de7",
+      "parent": "94abaf97442561b1",
+      "name": "[4/4] RUN cat message.txt > result.txt",
+      "service": "buildkitd"
+    }
+  ],
+  "secondJobRootVerified": true,
+  "passed": true,
+  "workflowRun": "https://github.com/ymotongpoo/buildkit-github-actions-otel-spike-20261027/actions/runs/40437818776",
+  "exportWorkflowRun": "https://github.com/ymotongpoo/buildkit-github-actions-otel-spike-20261027/actions/runs/40437872708",
+  "sourceCommit": "39dd2bdec3314ab593e22606d4edc6579f1a7114",
+  "collectorVersion": "0.164.0"
+}

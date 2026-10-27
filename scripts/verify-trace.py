@@ -53,12 +53,16 @@ builds = [span for span in by_id.values() if span["name"] == "build ."]
 assert len(builds) == 1, f"Expected one build span, found {len(builds)}"
 assert any(span["service"] == "buildkitd" for span in spans), "No BuildKit spans"
 
-path = []
-current = builds[0]
-while current:
-    assert current["id"] not in {span["id"] for span in path}, "Parent cycle"
-    path.append(current)
-    current = by_id.get(current["parent"])
+def ancestry(current):
+    path = []
+    while current:
+        assert current["id"] not in {span["id"] for span in path}, "Parent cycle"
+        path.append(current)
+        current = by_id.get(current["parent"])
+    return path
+
+
+path = ancestry(builds[0])
 
 result = {
     "mode": args.mode,
@@ -79,7 +83,15 @@ else:
     assert has_label(path[-1], "BuildKit linked trace"), "Build does not reach the workflow root"
     assert any(has_label(span, "Build Docker image") for span in path[1:]), "No Actions build step in ancestry"
     assert any(has_label(span, "build") for span in path[1:]), "No build job in ancestry"
-    assert any(has_label(span, "verify-source") for span in by_id.values()), "Second job absent from trace"
+    second_job = next((span for span in by_id.values() if has_label(span, "verify-source")), None)
+    assert second_job, "Second job absent from trace"
+    assert ancestry(second_job)[-1]["id"] == roots[0]["id"], "Second job has a different root"
+    dockerfile_step = next((span for span in by_id.values() if span["service"] == "buildkitd" and "RUN cat message.txt" in span["name"]), None)
+    assert dockerfile_step, "Dockerfile RUN span absent"
+    dockerfile_path = ancestry(dockerfile_step)
+    assert builds[0]["id"] in {span["id"] for span in dockerfile_path}, "Dockerfile step does not descend from build ."
+    result["dockerfileAncestry"] = [{k: span[k] for k in ["id", "parent", "name", "service"]} for span in reversed(dockerfile_path)]
+    result["secondJobRootVerified"] = True
 
 result["passed"] = True
 print(json.dumps(result, indent=2))
