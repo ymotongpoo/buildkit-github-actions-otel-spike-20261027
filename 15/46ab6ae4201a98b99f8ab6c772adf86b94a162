@@ -1,0 +1,23 @@
+scripts/verify-trace.py
+  s_e5d7daba3536a0::t_6810387ac081da 1-85
+evidence/baseline-verification.json
+  s_e5d7daba3536a0::t_329d6045c2cc5d 1-30
+evidence/linked-status.json
+  s_e5d7daba3536a0::t_e3b3ea67003204 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1546ab6ae4201a98b99f8ab6c772adf86b94a162",
+  "prompts": {},
+  "sessions": {
+    "s_e5d7daba3536a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a15baf-3c6c-7eb3-89ab-c308d5ab4b41",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Yoshi Yamaguchi <ymotongpoo@gmail.com>"
+    }
+  }
+}
