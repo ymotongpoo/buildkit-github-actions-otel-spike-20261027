@@ -1,0 +1,7 @@
+.work/
+.env
+.env.*
+*.token*
+*secret*
+*credential*
+__pycache__/
