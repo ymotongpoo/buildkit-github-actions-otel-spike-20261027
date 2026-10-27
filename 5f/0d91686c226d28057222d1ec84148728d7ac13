@@ -1,0 +1,29 @@
+message.txt
+  s_e5d7daba3536a0::t_871ca0e46b6b15 1
+.github/workflows/baseline.yml
+  s_e5d7daba3536a0::t_871ca0e46b6b15 1-36
+Dockerfile
+  s_e5d7daba3536a0::t_871ca0e46b6b15 1-5
+README.md
+  s_e5d7daba3536a0::t_871ca0e46b6b15 1-15
+.gitignore
+  s_e5d7daba3536a0::t_871ca0e46b6b15 1-7
+scripts/setup-builder.sh
+  s_e5d7daba3536a0::t_871ca0e46b6b15 1-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5f0d91686c226d28057222d1ec84148728d7ac13",
+  "prompts": {},
+  "sessions": {
+    "s_e5d7daba3536a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a15baf-3c6c-7eb3-89ab-c308d5ab4b41",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Yoshi Yamaguchi <ymotongpoo@gmail.com>"
+    }
+  }
+}
