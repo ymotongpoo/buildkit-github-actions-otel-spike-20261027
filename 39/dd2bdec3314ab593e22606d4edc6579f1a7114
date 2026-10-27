@@ -1,0 +1,28 @@
+collector.yaml
+  s_e5d7daba3536a0::t_e6acf590d1a3b6 1-29
+scripts/ci-parent.py
+  s_e5d7daba3536a0::t_e6acf590d1a3b6 1-22
+scripts/export-workflow.py
+  s_e5d7daba3536a0::t_70aba658b8ce45 41-42
+  s_e5d7daba3536a0::t_e6acf590d1a3b6 1-40,43-59
+.github/workflows/build.yml
+  s_e5d7daba3536a0::t_ccfbb88c5a82fd 10,24-28,31-33
+.github/workflows/export-workflow.yml
+  s_e5d7daba3536a0::t_3809c2cd6ad426 12,14-18,20-21,24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "39dd2bdec3314ab593e22606d4edc6579f1a7114",
+  "prompts": {},
+  "sessions": {
+    "s_e5d7daba3536a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a15baf-3c6c-7eb3-89ab-c308d5ab4b41",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Yoshi Yamaguchi <ymotongpoo@gmail.com>"
+    }
+  }
+}
