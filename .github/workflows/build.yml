@@ -1,0 +1,70 @@
+name: BuildKit linked trace
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  OTEL_SERVICE_NAME: gha-buildkit-spike
+  OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+  OTEL_METRICS_EXPORTER: none
+  OTEL_LOGS_EXPORTER: none
+  OTEL_RESOURCE_ATTRIBUTES: ci.repository=${{ github.repository }},ci.run.id=${{ github.run_id }},experiment.mode=linked
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Instrument job
+        uses: plengauer/Thoth/actions/instrument/job@c6ece8c81027d5bc048a003ccf0215d75221f2c1
+        env:
+          OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.GRAFANA_CLOUD_OTLP_ENDPOINT }}
+          OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.GRAFANA_CLOUD_OTLP_HEADERS }}
+        with:
+          secrets_to_redact: ${{ toJSON(secrets) }}
+          self_monitoring: 'false'
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+        with:
+          version: v0.29.1
+          install: true
+      - name: Configure Cloud builder
+        env:
+          OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.GRAFANA_CLOUD_OTLP_ENDPOINT }}
+          OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.GRAFANA_CLOUD_OTLP_HEADERS }}
+        run: bash scripts/setup-builder.sh
+      - name: Build Docker image
+        env:
+          OTEL_RESOURCE_ATTRIBUTES: vcs.ref.head.revision=${{ github.sha }},ci.run.id=${{ github.run_id }},ci.repository=${{ github.repository }},experiment.mode=linked
+        run: |
+          python3 - <<'PY'
+          import os, re
+          parent = os.environ.get('TRACEPARENT', '')
+          assert re.fullmatch(r'00-[0-9a-f]{32}-[0-9a-f]{16}-01', parent), 'Missing sampled parent context'
+          print('Build command receives TRACEPARENT:', parent)
+          PY
+          docker buildx build --builder ci-otel --load --tag buildkit-otel-spike:ci .
+      - name: Test Docker image
+        run: test "$(docker run --rm buildkit-otel-spike:ci)" = "hello from GitHub Actions"
+      - name: Remove Cloud builder
+        if: always()
+        run: docker buildx rm ci-otel || true
+  verify-source:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Instrument job
+        uses: plengauer/Thoth/actions/instrument/job@c6ece8c81027d5bc048a003ccf0215d75221f2c1
+        env:
+          OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.GRAFANA_CLOUD_OTLP_ENDPOINT }}
+          OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.GRAFANA_CLOUD_OTLP_HEADERS }}
+        with:
+          secrets_to_redact: ${{ toJSON(secrets) }}
+          self_monitoring: 'false'
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Verify source fixture
+        run: test "$(cat message.txt)" = "hello from GitHub Actions"

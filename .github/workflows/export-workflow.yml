@@ -1,0 +1,25 @@
+name: Export completed workflow trace
+on:
+  workflow_run:
+    workflows: [BuildKit linked trace]
+    types: [completed]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Export workflow spans
+        uses: plengauer/Thoth/actions/instrument/workflow@c6ece8c81027d5bc048a003ccf0215d75221f2c1
+        env:
+          OTEL_SERVICE_NAME: gha-buildkit-spike
+          OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.GRAFANA_CLOUD_OTLP_ENDPOINT }}
+          OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.GRAFANA_CLOUD_OTLP_HEADERS }}
+          OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+          OTEL_METRICS_EXPORTER: none
+          OTEL_LOGS_EXPORTER: none
+          OTEL_RESOURCE_ATTRIBUTES: ci.repository=${{ github.repository }},ci.run.id=${{ github.event.workflow_run.id }},experiment.mode=linked
+        with:
+          self_monitoring: 'false'
